@@ -3,21 +3,15 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.Scanner;
 public class Main {
-    static int length = 0;
-    static int pos[][];
-    static int w,h;
-    static int INF = 9999;
-    
     public static void main(String[] args){
-
         String[][] maze = new String[50][];
         int[][] dxdy = {{1,0},{0,1},{-1,0},{0,-1}};
         int wall = 0;
 
 		Scanner sc = new Scanner(System.in);
 		// スペース区切りの整数の入力
-		h = sc.nextInt();
-        w = sc.nextInt();
+		int h = sc.nextInt();
+        int w = sc.nextInt();
         // System.out.println("w,h = " + w + "," + h);
 
         //初期化
