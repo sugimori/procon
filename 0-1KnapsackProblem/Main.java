@@ -6,10 +6,10 @@ public class Main {
     static int v[] = new int[100];
     static int w[] = new int[100];
     static int maxvalue = 0;
-    static int dp[][] = new int[1000][];
+    static int dp[][] = new int[1001][];
 
     public static void main(String[] args) {
-        for(int i=0;i<1000;i++) {
+        for(int i=0;i<1001;i++) {
             dp[i] = new int[10001];
             for(int j=0;j<10001;j++) {
                 dp[i][j] = -1;
@@ -31,12 +31,12 @@ public class Main {
     }
 
     static int rec(int i,int j) {
+        if(dp[i][j] != -1) return dp[i][j];
         int res;
         // System.out.println(i + "," + j + "=");
         if(i == n) {
             return 0;
         } 
-        if(dp[i][j] != -1) return dp[i][j];
         if(w[i] > j) {
             res = rec(i+1,j);
         } else {
