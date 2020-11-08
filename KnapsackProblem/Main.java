@@ -1,4 +1,6 @@
 import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Main {
     static final int MAXN = 100;
@@ -8,14 +10,11 @@ public class Main {
     static int v[] = new int[100]; // 1<=v<=1000
     static int w[] = new int[100]; // 1<=w<=1000
     static int maxvalue = 0;
-    static int dp[][] = new int[MAXN+1][];  // 
+    static int dp[][] = new int[MAXN+1][MAXW+1];  // 
 
     public static void main(String[] args) {
-        for(int i=0;i<=MAXN;i++) {
-            dp[i] = new int[MAXW+1];
-            for(int j=0;j<=MAXW;j++) {
-                dp[i][j] = 0;
-            }
+        for(int[] dpval : dp) {
+            Arrays.fill(dpval,0);
         }
         Scanner sc = new Scanner(System.in);
 		// スペース区切りの整数の入力
@@ -27,9 +26,7 @@ public class Main {
             w[i] = sc.nextInt();
         }
 
-        maxvalue = solve();
-        
-        System.out.println(maxvalue);
+        System.out.println(solve());
     }
 
     static int solve() {
