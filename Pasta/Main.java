@@ -41,7 +41,6 @@ public class Main {
 
         // 配る
         for(int i = 1;i < n;i++){
-            // X
             for(int j = 0; j< MAXLEN; j++) {
                 if(dp[i][j] != 0) {
                     if(i==1) {
