@@ -8,15 +8,17 @@ public class Main {
     static final int INF = Integer.MAX_VALUE/2;
     static int n,k; 
     static int x[] = new int[MAXN+1]; 
-    static long dp[][] = new long[MAXN+1][MAXLEN];  // 
+    static long dp[][][] = new long[MAXN+1][MAXLEN][MAXLEN];  // 
 
     public static void main(String[] args) {
         // 初期化
-        for(long[] dpval : dp) {
-            Arrays.fill(dpval,0);
+        for(long[][] dp1 : dp) {
+            for(long[] dp2 : dp1) {
+                Arrays.fill(dp2,0);
+            }
         }
 
-        Arrays.fill(x,0);
+        Arrays.fill(x,-1);
 
         Scanner sc = new Scanner(System.in);
 		// スペース区切りの整数の入力
@@ -25,52 +27,52 @@ public class Main {
 
         for(int i = 0; i < k ; i++) {
             int day = sc.nextInt();
-            x[day] = sc.nextInt();
+            x[day] = sc.nextInt() -1 ;
         }
         System.out.println(solve());
     }
 
     static long solve() {
-        int max = 0;
-        // 1日目
-        if(x[1] != 0) {
-            dp[1][x[1]-1] = 1;
-        } else {
-            Arrays.fill(dp[1],1);
+        int answer = 0;
+        // f(n-1,A,B) = Σf(n,B,C)
+        for(int a=0;a<3;a++) {
+            for(int b=0;b<3;b++) {
+                int tmp = 1;
+                if((x[n-1] != -1)&&(x[n-1]!= a)) tmp = 0;
+                if((x[n] != -1)&&(x[n] != b)) tmp = 0;
+                dp[n][a][b] = tmp;
+            }
+        }
+        for(int i=n-1;i>=2;i--) {
+            for(int a=0;a<3;a++) {
+                for(int b=0;b<3;b++) {
+                    dp[i][a][b] += dp[i+1][b][0];
+                    dp[i][a][b] += dp[i+1][b][1];
+                    dp[i][a][b] += dp[i+1][b][2];
+                    if(a==b) dp[i][a][b] -= dp[i+1][b][b];
+                    if((x[i] != -1)&&(b != x[i])) dp[i][a][b] = 0;
+                    dp[i][a][b] %= 10000;
+                }    
+            }
+        }
+        for(int a=0;a<3;a++) {
+            if((x[1] == -1) ||(a == x[1])) {
+                answer += dp[2][a][0];
+                answer += dp[2][a][1];
+                answer += dp[2][a][2];
+            }
         }
 
-        // 配る
-        for(int i = 1;i < n;i++){
-            for(int j = 0; j< MAXLEN; j++) {
-                if(dp[i][j] != 0) {
-                    if(i==1) {
-                        dp[i+1][j] += dp[i][j];
-                    } else {
-                        dp[i+1][j] += dp[i-1][(j+1)%MAXLEN] + dp[i-1][(j+2)%MAXLEN];
-                    }
-                    dp[i+1][(j+1) % MAXLEN] += dp[i][j];
-                    dp[i+1][(j+2) % MAXLEN] += dp[i][j];  
-                }
-            }
-            for(int j=0;j<MAXLEN;j++) {
-                dp[i+1][j] = dp[i+1][j] % 10000;
-            }
-            // debugprint();
-            if(x[i+1] != 0 ) {
-                dp[i+1][(x[i+1]-1+1) % MAXLEN] = 0;
-                dp[i+1][(x[i+1]-1+2) % MAXLEN] = 0;
-            }
-            System.out.println("LINE:" + i);
-            debugprint();
-        }
-
-        return (dp[n][0] + dp[n][1] + dp[n][2]) %10000;
+        // debugprint();
+        return answer % 10000;
     }
     static void debugprint() {
         for(int i=0;i<=n;i++) {
             System.out.print(i + ":");
-            for(int j=0;j<MAXLEN;j++) {
-                System.out.print(dp[i][j] + ",");
+            for(int a=0;a<MAXLEN;a++) {
+                for(int b=0;b<MAXLEN;b++) {
+                    System.out.print("(" + a+","+b+")=" + dp[i][a][b] + ",");
+                }
             }
             System.out.println("");
         }
