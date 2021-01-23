@@ -38,11 +38,11 @@ public class Main {
 
     static int solve() {
         // 初期値
-        for(int i=1;i<n;i++) {
-            dp[i][i+1] = r[i] * r[i+1] * c[i+1];
-        }
+        // for(int i=1;i<n;i++) {
+        //     dp[i][i+1] = r[i] * r[i+1] * c[i+1];
+        // }
         // debugprint();
-        for(int k=2;k<=n-1;k++) {
+        for(int k=1;k<=n-1;k++) {
             for(int i=1;i+k<=n;i++){
                 // dp[i][i+k] = Math.min(
                 //                 dp[i][i+k-1] + r[i]*r[i+k]*c[i+k], 
