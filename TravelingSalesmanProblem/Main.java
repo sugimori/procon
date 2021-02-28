@@ -9,7 +9,7 @@ public class Main {
     static int v,e; 
     static int d[][] = new int[MAXV+1][MAXV+1]; 
     static int dp[][] = new int[1 << MAXV][MAXV+1];  
-    static boolean debug = true;
+    static boolean debug = false;
 
     // v=2 都市2個 11(3) 10(2) 01(1) 00(0)
 
@@ -47,12 +47,14 @@ public class Main {
             return dp[sub][end];
         }
         if(debug) System.out.println("A:" + (sub&(1<<end)));
-        if((sub & (1 << end)) != 0) {
+        if(contain(sub,end)) {
             for(int u=0;u<=v-1;u++) {
-                if(d[u][end] != -1) {
-                    int result = solve(sub & ~(1 << end),u);
-                    if(result != -1) {
-                        dp[sub][end] = Math.min(dp[sub][end],result+d[u][end]);
+                if(contain(sub & ~(1 << end), u)) {
+                    if(d[u][end] != -1) {
+                        int result = solve(sub & ~(1 << end),u);
+                        if(result != -1) {
+                            dp[sub][end] = Math.min(dp[sub][end],result+d[u][end]);
+                        }
                     }
                 }
             }
@@ -61,6 +63,10 @@ public class Main {
         }
         debugprint();
         return dp[sub][end];
+    }
+    static boolean contain(int s,int v){
+        if(s == 0) return true;
+        return (s & (1 << v)) != 0;
     }
     static void debugprint() {
         if(debug) {
