@@ -2,7 +2,7 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Main {
+public class Main2 {
     static final int MAXV = 15;
     static final int MAXE = (int)Math.pow(15,2);
     static final int INF = Integer.MAX_VALUE/2;
@@ -12,7 +12,10 @@ public class Main {
     static boolean debug = false;
 
     // v=2 都市2個 11(3) 10(2) 01(1) 00(0)
-
+    // dp[S’][v] ... S’を通ってvにいる時の後に通る最短経路長
+    //    dp[S’][v] は S’ = Sのとき0（もういくところがないため）
+    // それ以外の時 min(dp[S’ & u][u] + dist[v][u], dp[S'][v])
+    // uはvからたどり着くことができて、まだ行っていない(S’に含まれない）頂点。
     public static void main(String[] args) {
         //初期化
         for(int[] tmpdp : dp) {
@@ -32,29 +35,31 @@ public class Main {
             int tmpd = sc.nextInt();
             d[tmps][tmpt] = tmpd;
         }
-
-        dp[0][0] = 0; // まだどこにも行ってない。＆今0
-        int result = solve((1<<v)-1,0); // 全部行って、今0
+        // 
+        dp[(1<<v)-1][0] = 0;
+        int result = solve(0,0);
         if(result == INF ) result = -1;
         System.out.println(result);
     
     }
 
     static int solve(int sub,int end) {
-        if(debug) System.out.printf("solve(%s,%d)\n",d2bin(sub),end);
+        if(debug) System.out.printf("solve(%d,%d)\n",sub,end);
         debugprint();
         if(dp[sub][end] != INF) {
             return dp[sub][end];
         }
         if(debug) System.out.println("A:" + (sub&(1<<end)));
         if(contain(sub,end)) {
-            int nextsub = sub & ~(1 << end);
+            if(debug) System.out.println("B:" + sub+","+end);
             for(int u=0;u<=v-1;u++) {
-                if(contain(nextsub, u)) {
-                    if(d[u][end] != -1) {
+                if(debug) System.out.println("C:" + u);
+                if(!contain(sub,u)) {
+                    int nextsub = sub | (1<<u);
+                    if(d[end][u] != -1) {
                         int result = solve(nextsub,u);
                         if(result != -1) {
-                            dp[sub][end] = Math.min(dp[sub][end],result+d[u][end]);
+                            dp[sub][end] = Math.min(dp[sub][end],result+d[end][u]);
                         }
                     }
                 }
