@@ -33,27 +33,23 @@ public class Main {
     static int solve() {
         if(debug) System.out.println("IN");
         // 初期化
-        int count = 0;
+        int max = 1;
         dp[1] = nums[0];
 
-        for(int i=1;i<n;i++){            
-            if(dp[i] < nums[i]) {
-                dp[i+1] = nums[i];
+        for(int i=1;i<n;i++){
+            if(dp[max] < nums[i]) {
+                max++;
+                dp[max] = nums[i];
             } else {
-                for(int j=i;j>=0;j--) {
-                    if(debug) System.out.printf("i=%d,j=%d,nums=%d,dp=%d\n",i,j,nums[i],dp[j]);
-                    if(nums[i] < dp[j]) {
-                        dp[j+1] = dp[j];
-                    } else if(dp[j] < nums[i]) {
-                        dp[j+1] = nums[i];
-                        count++;
-                        break;
+                for(int j=max;j>0;j--) {
+                    if((dp[j-1] < nums[i]) &&(nums[i] < dp[j])) {
+                        dp[j] = nums[i];
                     }
                 }
             }
             debugprint();
         }
-        return count;
+        return n-max;
     }
 
     static void debugprint() {
