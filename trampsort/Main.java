@@ -41,9 +41,19 @@ public class Main {
                 max++;
                 dp[max] = nums[i];
             } else {
-                for(int j=max;j>0;j--) {
+                int upper = max;
+                int lower = 1;
+                while(lower <= upper) {
+                    int j = (upper + lower)/2;
+                    if(debug) System.out.printf("max=%d,nums=%d,%d < %d(%d) < %d\n",max,nums[i],lower,j,dp[j],upper);
                     if((dp[j-1] < nums[i]) &&(nums[i] < dp[j])) {
                         dp[j] = nums[i];
+                        break;
+                    }
+                    if(dp[j] < nums[i]) {
+                        lower = j+1;
+                    } else {
+                        upper = j-1;
                     }
                 }
             }
