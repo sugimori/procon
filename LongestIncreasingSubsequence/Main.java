@@ -19,9 +19,9 @@ public class Main {
 
         n = sc.nextInt();
 
-        dp = new int[n];
+        dp = new int[n+1];
         //初期化
-        Arrays.fill(dp,1);
+        Arrays.fill(dp,-1);
         
         nums = IntStream.range(0,n).map(x -> sc.nextInt()).toArray();
         if(debug) System.out.println(Arrays.toString(nums));
@@ -32,22 +32,24 @@ public class Main {
 
     static int solve() {
         if(debug) System.out.println("IN");
-        int count=1;
-        for(int i=0;i<n-1;i++){
-            int tmpdp[] = Arrays.copyOfRange(dp, i+1, n);
-            if(debug) System.out.println(Arrays.toString(tmpdp));
-            int min = Arrays.stream(tmpdp).min().getAsInt();
-            if(dp[i]+1 <= min) continue;
-            for(int j=i+1;j<n;j++) {
-                if(nums[i] < nums[j]) {
-                    dp[j] = Math.max(dp[j],dp[i] + 1);
-                    count = Math.max(count, dp[j]);
-                    // break;
+        // 初期化
+        int max = 1;
+        dp[1] = nums[0];
+
+        for(int i=1;i<n;i++){            
+            if(dp[max] < nums[i]) {
+                max++;
+                dp[max] = nums[i];
+            } else {
+                for(int j=max;j>0;j--) {
+                    if((dp[j-1] < nums[i])&&(nums[i] < dp[j])) {
+                        dp[j] = nums[i];
+                    }
                 }
             }
             debugprint();
         }
-        return count;
+        return max;
     }
 
     static void debugprint() {
