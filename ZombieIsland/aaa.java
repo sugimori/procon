@@ -1,8 +1,10 @@
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.stream.IntStream;
 
@@ -19,46 +21,45 @@ public class Main{
 
 	int n,zombie;
 	long[]cost,res;
-	BitSet[]e;
+	ArrayList<HashSet<Integer>> e;
 	private void solve() throws IOException{
 		n=gInt();
 		int road=gInt();
 		zombie=gInt();
 		int dist=gInt(),csafe=gInt(),cdanger=gInt();
-		BitSet danger=new BitSet();
+		HashSet<Integer> danger=new HashSet<>();
 		cost=new long[n];//Lmax:zombie
 		res=new long[n];
-		e=new BitSet[n];
+		e=new ArrayList<>();
+		for(int i=0;i<n;++i)
+			e.add(new HashSet<>());
 		Arrays.fill(res,Long.MAX_VALUE/10);
 		res[0]=0;
 		for(int i=0;i<zombie;++i) {
 			int v=gInt()-1;
 			cost[v]=Long.MAX_VALUE/10;
-			danger.set(v);
+			danger.add(v);
  		}
-		for(int i=0;i<n;++i) {
-			e[i]=new BitSet();
-		}
 		for(int i=0;i<road;++i) {
 			int f=gInt()-1,t=gInt()-1;
-			e[f].set(t);
-			e[t].set(f);
+			e.get(f).add(t);
+			e.get(t).add(f);
 		}
 
 		//Arrays.stream(e).map(String::valueOf).forEach(System.out::println);
 
 		//危険な町の確定
 		{
-			BitSet next=new BitSet(),buf=new BitSet();/*buf=新しく行ける*/
-			next.or(danger);
+			HashSet<Integer> next=new HashSet<>(),buf=new HashSet<>();/*buf=新しく行ける*/
+			next.addAll(danger);
 			for(int i=0;i<dist;++i) {
 				next.stream()
-				.mapToObj(o->e[o])
-				.forEach(buf::or);
-				buf.andNot(danger);
-				danger.or(buf);
+				.map(e::get)
+				.forEach(buf::addAll);
+				buf.removeAll(danger);
+				danger.addAll(buf);
 				next.clear();
-				next.or(buf);
+				next.addAll(buf);
 			}
 		}
 
@@ -66,7 +67,7 @@ public class Main{
 
 		for(int i=1;i<n-1;++i) {
 			if(cost[i]==0) {
-				cost[i]=danger.get(i)?cdanger:csafe;
+				cost[i]=danger.contains(i)?cdanger:csafe;
 			}
 		}
 
@@ -84,7 +85,7 @@ public class Main{
 				continue;
 			}
 			searched.set(poll.t);
-			e[poll.t].stream().filter(o->!searched.get(o)).forEach(o->{
+			e.get(poll.t).stream().filter(o->!searched.get(o)).forEach(o->{
 				if(res[o]>res[poll.t]+cost[o]) {
 					res[o]=res[poll.t]+cost[o];
 					edge.add(new Edge(poll.t,o,res[o]));
