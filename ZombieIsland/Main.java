@@ -1,5 +1,4 @@
 import java.util.Scanner;
-import java.util.stream.IntStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +9,6 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Queue;
-import java.lang.Long;
 
 // 100000 200000 500 10
 // 99856 200000 500 20
@@ -19,10 +17,10 @@ public class Main {
     static final int MAXN = 30000;
     static final long INF = Long.MAX_VALUE/2;
     static int town, road, zombi, safeRange, safePrice, riskPrice;
-    static List<List<Integer>> path;
     static Set<Integer> zombiTown;
     static int price[];
     static long d[];
+    static Set<Integer> visited;
     static boolean debug = false;
 
     public static void main(String[] args) {
@@ -43,11 +41,19 @@ public class Main {
         }
         if(debug) System.out.printf("Zombi %s\n", zombiTown);
 
+        // townの最低コスト
         d = new long[town];
         Arrays.fill(d,INF);
+
+        // 宿泊費
         price = new int[town];
         Arrays.fill(price,safePrice);
-        path = new ArrayList<List<Integer>>();
+
+        // 訪問フラグ
+        visited = new HashSet<>();
+
+        // path初期化
+        List<List<Integer>> path = new ArrayList<>();
         for(int i=0;i<town;i++) {
             path.add(i,new ArrayList<Integer>());
         }
@@ -58,33 +64,33 @@ public class Main {
             path.get(start).add(end);
             path.get(end).add(start);
         }
+        if(debug) System.out.printf("Path size: %d\n",path.size());
 
         sc.close();
 
-        makePrice();
-        System.out.println(solve());
+        makePrice(path);
+        System.out.println(solve(path));
+        System.gc();
 
     }
 
-    static void makePrice() 
+    static void makePrice(List<List<Integer>> path) 
     {
-        Set<Integer> done = new HashSet<>();
+        visited.clear();
         Queue<Integer[]> que = new ArrayDeque<>();
-        zombiTown.forEach( num -> que.add(new Integer[]{num,0}));
+        zombiTown.forEach( pos -> que.add(new Integer[]{pos,1}));
         Integer[] now;
         while((now = que.poll()) != null ) {
             if(debug) System.out.printf("now %d %d\n",now[0],now[1]);
-            if(now[1] > safeRange) continue;
+            if(now[1] > safeRange + 1) continue;
             price[now[0]] = riskPrice;                
-            done.add(now[0]);
+            visited.add(now[0]);
 
             for(Integer next : path.get(now[0])) {
-                if(done.contains(next) == true) continue;
+                if(visited.contains(next) == true) continue;
                 if(zombiTown.contains(next) == true) continue;
-                if(now[1] < safeRange) {
-                    que.add(new Integer[]{next, now[1]+1});
-                    if(debug) System.out.printf("que add %d %d\n",next, now[1]+1);
-                }
+                que.offer(new Integer[]{next, now[1]+1});
+                if(debug) System.out.printf("que add %d %d\n",next, now[1]+1);
             }
         }
         
@@ -93,31 +99,32 @@ public class Main {
         if(debug) System.out.printf("price %s\n", Arrays.toString(price));
     }
 
-    static long solve() {
-        Set<Integer> visited = new HashSet<>();
-        Queue<Integer> queue = new PriorityQueue<>((a,b) -> Long.compare(d[a], d[b]));
+    static long solve(List<List<Integer>> path) {
+        visited.clear();
+        Queue<long[]> queue = new PriorityQueue<>((a,b) -> Long.compare(a[1], b[1]));
         if(debug) System.out.println("solve() IN");
         // 初期化
         d[0] = 0;
-        queue.add(0);
+        queue.add(new long[]{0L,0L});
         while(queue.peek()!=null) {
-            int now = queue.poll();
-            long nowval = d[now];
-            if(now == town-1) break;
-            visited.add(now);
+            long[] now = queue.poll();
+            int nowpos = (int)now[0];
+            long nowcost = now[1];
+            if(nowpos == town-1) break;
+            visited.add(nowpos);
 
-            if(debug) System.out.printf("MIN: pos %d\n", now);
+            if(debug) System.out.printf("MIN: pos %d cost %d\n", nowpos,nowcost);
             debugprint();
 
-            for(Integer next :  path.get(now)) {
+            for(Integer next :  path.get(nowpos)) {
                 if(visited.contains(next) ==  true) continue;
                 if(zombiTown.contains(next) == true) continue;
-                long nextval = nowval + price[next];
+                long nextcost = nowcost + price[next];
 
-                if(d[next] > nextval) {
-                    if(debug) System.out.println(now + "->" + next);
-                    queue.add(next);
-                    d[next] = nextval;
+                if(d[next] > nextcost) {
+                    if(debug) System.out.println(nowpos + "->" + next);
+                    queue.add(new long[] {next, nextcost});
+                    d[next] = nextcost;
                 }
 
             }
