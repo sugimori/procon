@@ -3,6 +3,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -70,18 +71,45 @@ public class Main {
         cost[0] = 0;
         queue.add(new int[]{0,0});
         while(queue.peek()!=null) {
+            if(debug) System.out.println("Queue size:" + queue.size());
             int now = queue.peek()[0];
             int nowcost = queue.poll()[1];
             if(now == town-1) break;
-            visited.clear();
-            visited.add(now);
             if(debug) System.out.printf("MIN: pos %d cost %d\n", now,nowcost);
             // debugprint();
-            dfs(queue, now, cost[now]+price[now],distance[now]);
+            bfs(queue, now, cost[now]+price[now],distance[now]);
             // debugprint();
         }
         if(debug) System.out.printf("OUT solve() result %d\n", cost[town-1]);
         return cost[town-1];
+    }
+
+    static void bfs(Queue<int[]> queue, int start, int price, int times)
+    {
+        if(debug) System.out.printf("bfs in: start %d, price %d, times %d\n", start, price, times);
+        Queue<int[]> bfsque = new ArrayDeque<int[]>();
+        bfsque.add(new int[]{start,0});
+        visited.clear();
+
+        while(bfsque.peek()!=null){
+            int now = bfsque.peek()[0];
+            int nowcount = bfsque.poll()[1];
+            if(debug) System.out.printf("BFSqueue now %d\n", now);
+            visited.add(now);
+            if(cost[now] > price) {
+                if(debug) System.out.printf("Queue Add: %d\n",now);
+                queue.add(new int[]{now, price});
+                cost[now] = price;
+            }
+
+            for(int next : path.get(now)) {
+                if(visited.contains(next) == true) continue;
+                if(nowcount +1 > times) continue;
+                if(debug) System.out.printf("BFSque Add: %d(%d)\n",next,nowcount+1);
+                bfsque.add(new int[]{next, nowcount+1});
+            }
+        }
+
     }
 
     static void dfs(Queue<int[]> queue, int pos, int price, int times)
