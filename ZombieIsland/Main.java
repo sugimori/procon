@@ -90,6 +90,7 @@ public class Main {
                 if(visited.contains(next) == true) continue;
                 if(zombiTown.contains(next) == true) continue;
                 que.offer(new Integer[]{next, now[1]+1});
+                visited.add(next);
                 if(debug) System.out.printf("que add %d %d\n",next, now[1]+1);
             }
         }
